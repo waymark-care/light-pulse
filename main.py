@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import Annotated
+import logging
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -20,6 +21,9 @@ from auth import (
     create_access_token,
 )
 
+logger = logging.getLogger(__name__)
+
+
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
@@ -35,6 +39,7 @@ def get_db():
 
 @app.get("/")
 async def root():
+    logger.info("Hello world")
     return {"message": "Hello world"}
 
 
@@ -110,8 +115,7 @@ async def login_for_access_token(
 
 @app.get("/users/me/")
 async def read_users_me(
-    current_user: Annotated[schemas.Waymarker, 
-                            Depends(get_current_active_user)],
+    current_user: Annotated[schemas.Waymarker, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
 ):
     return current_user
