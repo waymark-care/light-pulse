@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import Annotated
+from pydantic import BaseModel
 import logging
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from src import crud, models, schemas
 from src.database import SessionLocal, engine
+from src.api.patients.care_gaps import patient_care_gaps_update
 
 from auth import (
     Token,
@@ -113,9 +115,28 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
+# example route that requires authentication and getting the current user
 @app.get("/users/me/")
 async def read_users_me(
-    current_user: Annotated[schemas.Waymarker, Depends(get_current_active_user)],
+    current_user: Annotated[(schemas.Waymarker, Depends(get_current_active_user))],
     db: Session = Depends(get_db),
 ):
     return current_user
+
+
+class PatientCareGapRequestBody(BaseModel):
+    patient_id: str
+    total_gaps: int
+
+
+@app.post("/api/patients/care-gaps")
+async def patient_care_gaps(
+    current_user: Annotated[(schemas.Waymarker, Depends(get_current_active_user))],
+    care_gaps: PatientCareGapRequestBody,
+    db: Session = Depends(get_db),
+):
+    patient_id, total_gaps = care_gaps.patient_id, care_gaps.total_gaps
+    result, error = await patient_care_gaps_update(db, patient_id, total_gaps)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    return result
