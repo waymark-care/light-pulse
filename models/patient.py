@@ -32,7 +32,6 @@ class Patient(BaseModel):
     primaryContactRelationship: Union[str, None]
     canShareProgramInfo: Union[bool, None]
     ethnicity: Union[str, None]
-    languages: Json[Any]
     avatar: Union[str, None]
     bookmarked: Union[bool, None]
     region: str
@@ -54,6 +53,42 @@ class Patient(BaseModel):
     source: str
     userUpdated: Union[bool, None]
     waymarkPatientNumber: Union[str, None]
+
+    class Config:
+        orm_mode = True
+
+
+class AdmissionDischargeTransfer(BaseModel):
+    id: str
+    patientId: str
+    visitNumber: Union[str, None]
+    adtMasterId: Union[str, None]
+    patientEpisode: Union[str, None]
+    eventTypeCode: Union[str, None]
+    triggerEvent: Union[str, None]
+    eventDescription: Union[str, None]
+    admitDate: Union[datetime, None]
+    dischargedDate: Union[datetime, None]
+    hospitalName: Union[str, None]
+    phoneNumber: Union[str, None]
+    address: Union[Json[Any], None]
+    createdAt: datetime
+    updatedAt: datetime
+    dischargeDisposition: Union[str, None]
+    patientClassCode: Union[str, None]
+    hospitalServiceDescription: Union[str, None]
+    asthmaEvent: Union[bool, None]
+    behavioralHealthEvent: Union[bool, None]
+    copdEvent: Union[bool, None]
+    diabetesEvent: Union[bool, None]
+    edAvoidable: Union[str, None]
+    heartFailureEvent: Union[bool, None]
+    hypertensionEvent: Union[bool, None]
+    ipAvoidable: Union[str, None]
+    maternityEvent: Union[bool, None]
+    sudEvent: Union[bool, None]
+    diagnosis: Union[list, None]
+    sudEvent: Union[bool, None]
 
     class Config:
         orm_mode = True

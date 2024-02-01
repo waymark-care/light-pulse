@@ -1,13 +1,9 @@
 from sqlalchemy.orm import Session
-from database.schemas import Patient, Waymarker
+from database.schemas import Patient, Waymarker, AdmissionDischargeTransfer
 
 
-def get_patient(db: Session, id: str):
-    return db.query(Patient).filter(Patient.id == id).first()
-
-
-def get_waymarker(db: Session, id: str):
-    return db.query(Waymarker).filter(Waymarker.id == id).first()
+def get_patient(db: Session, patient_id: str):
+    return db.query(Patient).get(patient_id)
 
 
 def update_patient_status(db: Session, id: str, status: str):
@@ -16,3 +12,11 @@ def update_patient_status(db: Session, id: str, status: str):
     db.commit()
     db.refresh(patient)
     return patient
+
+
+def get_waymarker(db: Session, waymarker_id: str):
+    return db.query(Waymarker).get(waymarker_id)
+
+
+def get_adt_event(db: Session, adt_event_id: str):
+    return db.query(AdmissionDischargeTransfer).get(adt_event_id)

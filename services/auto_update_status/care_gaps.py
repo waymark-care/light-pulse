@@ -5,8 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-async def patient_care_gaps_update(db: Session, patient_id: str, 
-                                   total_gaps: int = 0):
+async def patient_care_gaps_update(db: Session, patient_id: str, total_gaps):
     patient = get_patient(db, patient_id)
 
     if not patient:
@@ -18,8 +17,8 @@ async def patient_care_gaps_update(db: Session, patient_id: str,
     if patient.PatientList.qcgNumLikelyOpen != total_gaps:
         return (
             None,
-            f"Total gaps {total_gaps} does not match database value \
-                {patient.PatientList.qcgNumLikelyOpen}",
+            f"Total gaps {total_gaps} does not match database value"
+            f" {patient.PatientList.qcgNumLikelyOpen}",
         )
 
     if patient.status == "ASSIGNED" and total_gaps > 0:
