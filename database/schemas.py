@@ -1,7 +1,7 @@
 from sqlalchemy import Table
 from sqlalchemy.orm import relationship
 
-from .database import lighthouse_metadata, engine, Base
+from .db import lighthouse_metadata, engine, Base
 
 
 class Patient(Base):

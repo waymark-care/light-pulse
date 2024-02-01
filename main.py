@@ -1,43 +1,31 @@
 from datetime import timedelta
 from typing import Annotated
-from pydantic import BaseModel
 import logging
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import JWTError, jwt
-
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from src import crud, models, schemas
-from src.database import SessionLocal, engine
-from src.api.patients.care_gaps import patient_care_gaps_update
 
+from database import schemas
+from database.db import engine, get_db
+from services.db_utils import get_patient
 from auth import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
     Token,
-    TokenData,
-    SECRET_KEY,
-    ALGORITHM,
-    get_user,
-    authenticate_user,
     create_access_token,
+    authenticate_user,
 )
+from dependencies import get_current_active_user
+
+from api import patient
 
 logger = logging.getLogger(__name__)
 
 
-models.Base.metadata.create_all(bind=engine)
+schemas.Base.metadata.create_all(bind=engine)
 app = FastAPI()
-
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+app.include_router(patient.router)
 
 @app.get("/")
 async def root():
@@ -54,48 +42,13 @@ async def pong():
 # API endpoint to get a patient by ID - testing that DB connection works
 @app.get("/patients/{patient_id}")
 async def read_patient(patient_id: str, db: Session = Depends(get_db)):
-    db_patient = crud.get_patient(db, id=patient_id)
+    db_patient = get_patient(db, id=patient_id)
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
     return db_patient
 
 
 # Authentication code
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)], db=Depends(get_db)
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = get_user(db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(
-    current_user: Annotated[schemas.Waymarker, Depends(get_current_user)]
-) -> schemas.Waymarker:
-    if not current_user.active:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-
 @app.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -122,21 +75,3 @@ async def read_users_me(
     db: Session = Depends(get_db),
 ):
     return current_user
-
-
-class PatientCareGapRequestBody(BaseModel):
-    patient_id: str
-    total_gaps: int
-
-
-@app.post("/api/patients/care-gaps")
-async def patient_care_gaps(
-    current_user: Annotated[(schemas.Waymarker, Depends(get_current_active_user))],
-    care_gaps: PatientCareGapRequestBody,
-    db: Session = Depends(get_db),
-):
-    patient_id, total_gaps = care_gaps.patient_id, care_gaps.total_gaps
-    result, error = await patient_care_gaps_update(db, patient_id, total_gaps)
-    if error:
-        raise HTTPException(status_code=400, detail=error)
-    return result

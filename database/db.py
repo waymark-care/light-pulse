@@ -17,3 +17,12 @@ Base = declarative_base()
 # reflect the tables
 lighthouse_metadata = MetaData()
 lighthouse_metadata.reflect(engine)
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -6,11 +6,12 @@ from passlib.context import CryptContext
 from jose import jwt
 
 from sqlalchemy.orm import Session
-
-from src import schemas, crud
+from models.waymarker import Waymarker
+from services.db_utils import get_waymarker
 
 SECRET_KEY = "3b99bb090543a635183501a25bb3436ade347e7de4b4b33ce584c5c2a8c3f39d"
 ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -36,9 +37,9 @@ def get_password_hash(password):
 
 
 def get_user(db: Session, username: str):
-    user = crud.get_waymarker(db, id=username)
+    user = get_waymarker(db, id=username)
     if user:
-        return schemas.Waymarker(**user.__dict__)
+        return Waymarker(**user.__dict__)
 
 
 async def authenticate_user(db: Session, id: str, api_key: str):

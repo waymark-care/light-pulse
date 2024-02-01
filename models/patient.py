@@ -57,9 +57,3 @@ class Patient(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class Waymarker(BaseModel):
-    id: str
-    active: Union[bool, None] = None
-    apiKey: Union[str, None] = None

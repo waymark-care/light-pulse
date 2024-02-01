@@ -1,12 +1,12 @@
-from src.crud import get_patient, update_patient_status
 from sqlalchemy.orm import Session
-
+from ..db_utils import get_patient, update_patient_status
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-async def patient_care_gaps_update(db: Session, patient_id: str, total_gaps: int = 0):
+async def patient_care_gaps_update(db: Session, patient_id: str, 
+                                   total_gaps: int = 0):
     patient = get_patient(db, patient_id)
 
     if not patient:

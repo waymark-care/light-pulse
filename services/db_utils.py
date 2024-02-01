@@ -1,14 +1,13 @@
 from sqlalchemy.orm import Session
-
-from . import models
+from database.schemas import Patient, Waymarker
 
 
 def get_patient(db: Session, id: str):
-    return db.query(models.Patient).filter(models.Patient.id == id).first()
+    return db.query(Patient).filter(Patient.id == id).first()
 
 
 def get_waymarker(db: Session, id: str):
-    return db.query(models.Waymarker).filter(models.Waymarker.id == id).first()
+    return db.query(Waymarker).filter(Waymarker.id == id).first()
 
 
 def update_patient_status(db: Session, id: str, status: str):
