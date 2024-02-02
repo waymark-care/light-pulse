@@ -111,7 +111,6 @@ class AdmissionDischargeTransfer(BaseModel):
     ipAvoidable: Union[str, None]
     maternityEvent: Union[bool, None]
     sudEvent: Union[bool, None]
-    diagnosis: Union[list, None]
     sudEvent: Union[bool, None]
 
     class Config:

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import logging
 
 from sqlalchemy.orm import Session
@@ -13,13 +13,13 @@ async def adt_event_update(db: Session, patient_id: str, adt_event_id: str):
     if not db_patient:
         return None, "Patient not found"
 
-    patient = Patient(**db_patient.dict())
+    patient = Patient(**db_patient.__dict__)
 
     db_adt_event = get_adt_event(db, adt_event_id)
-    if db_adt_event:
+    if not db_adt_event:
         return None, "No ADT Event Found"
 
-    adt_event = AdmissionDischargeTransfer(**db_adt_event.dict())
+    adt_event = AdmissionDischargeTransfer(**db_adt_event.__dict__)
 
     if adt_event.patientId != patient.id:
         return None, "ADT Event does not match patientId"
