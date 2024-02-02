@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Json
+from pydantic import BaseModel, Json, ConfigDict
 from typing import Union, Any
 
 
@@ -43,6 +43,8 @@ class PatientStatusTypes(str, Enum):
 
 
 class Patient(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     firstName: str
     middleName: Union[str, None]
@@ -78,11 +80,10 @@ class Patient(BaseModel):
     userUpdated: Union[bool, None]
     waymarkPatientNumber: Union[str, None]
 
-    class Config:
-        orm_mode = True
-
 
 class AdmissionDischargeTransfer(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     patientId: str
     visitNumber: Union[str, None]
@@ -112,6 +113,3 @@ class AdmissionDischargeTransfer(BaseModel):
     maternityEvent: Union[bool, None]
     sudEvent: Union[bool, None]
     sudEvent: Union[bool, None]
-
-    class Config:
-        orm_mode = True
