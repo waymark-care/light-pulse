@@ -7,6 +7,7 @@ from .db import lighthouse_metadata, engine, Base
 class Patient(Base):
     __table__ = Table("Patient", lighthouse_metadata, autoload=engine)
     PatientList = relationship("PatientList", uselist=False)
+    adt = relationship("AdmissionDischargeTransfer")
 
 
 class PatientList(Base):
@@ -15,3 +16,9 @@ class PatientList(Base):
 
 class Waymarker(Base):
     __table__ = Table("Waymarker", lighthouse_metadata, autoload=engine)
+
+
+class AdmissionDischargeTransfer(Base):
+    __table__ = Table(
+        "AdmissionDischargeTransfer", lighthouse_metadata, autoload=engine
+    )

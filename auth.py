@@ -37,7 +37,7 @@ def get_password_hash(password):
 
 
 def get_user(db: Session, username: str):
-    user = get_waymarker(db, id=username)
+    user = get_waymarker(db=db, waymarker_id=username)
     if user:
         return Waymarker(**user.__dict__)
 
