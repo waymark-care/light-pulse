@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Json
+from pydantic import BaseModel, Json, ConfigDict
 from typing import Union, Any
 
 
@@ -12,13 +12,39 @@ class EligibilityStatusCategoryType(str, Enum):
     OTHERS = "OTHERS"
 
 
-class ElibilityStatus(str, Enum):
+class EligibilityStatus(str, Enum):
     ELIGIBLE = "ELIGIBLE"
     INELIGIBLE = "INELIGIBLE"
     UNKNOWN = "UNKNOWN"
 
 
+class PatientStatusTypes(str, Enum):
+    ASSIGNED = "ASSIGNED"
+    TARGETED = "TARGETED"
+    OUTREACH = "OUTREACH"
+    IN_CONTACT = "IN_CONTACT"
+    ENROLLED = "ENROLLED"
+    MAXIMUM = "MAXIMUM"
+    HIGH = "HIGH"
+    MODERATE = "MODERATE"
+    MAINTENANCE = "MAINTENANCE"
+    PREGRADUATION = "PREGRADUATION"
+    GRADUATED = "GRADUATED"
+    CLOSED = "CLOSED"
+    CONSENTED = "CONSENTED"
+    ONBOARDED = "ONBOARDED"
+    REFUSED_MAYBE = "REFUSED_MAYBE"
+    REFUSED_NO = "REFUSED_NO"
+    NOT_ELIGIBLE = "NOT_ELIGIBLE"
+    DROPPED_OUT_OF_CONTACT = "DROPPED_OUT_OF_CONTACT"
+    WITHDRAWN_PATIENT = "WITHDRAWN_PATIENT"
+    WITHDRAWN_WAYMARK = "WITHDRAWN_WAYMARK"
+    ACTIVATED = "ACTIVATED"
+
+
 class Patient(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     firstName: str
     middleName: Union[str, None]
@@ -46,7 +72,7 @@ class Patient(BaseModel):
     updatedAt: datetime
     version: int
     status: Union[str, None]
-    isEligible: ElibilityStatus | None
+    isEligible: EligibilityStatus | None
     eligibilityStatusCategory: EligibilityStatusCategoryType | None
     eligibilityStatusUpdateDate: datetime | None
     birthDate: datetime
@@ -54,11 +80,10 @@ class Patient(BaseModel):
     userUpdated: Union[bool, None]
     waymarkPatientNumber: Union[str, None]
 
-    class Config:
-        orm_mode = True
-
 
 class AdmissionDischargeTransfer(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     patientId: str
     visitNumber: Union[str, None]
@@ -88,6 +113,3 @@ class AdmissionDischargeTransfer(BaseModel):
     maternityEvent: Union[bool, None]
     sudEvent: Union[bool, None]
     sudEvent: Union[bool, None]
-
-    class Config:
-        orm_mode = True

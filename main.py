@@ -9,14 +9,12 @@ from sqlalchemy.orm import Session
 
 from database import schemas
 from database.db import engine, get_db
-from services.db_utils import get_patient
 from auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     Token,
     create_access_token,
     authenticate_user,
 )
-from dependencies import get_current_active_user
 
 from api import patient
 
@@ -40,15 +38,6 @@ async def pong():
     return {"message": "pong"}
 
 
-# API endpoint to get a patient by ID - testing that DB connection works
-@app.get("/patients/{patient_id}")
-async def read_patient(patient_id: str, db: Session = Depends(get_db)):
-    db_patient = get_patient(db=db, patient_id=patient_id)
-    if db_patient is None:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    return db_patient
-
-
 # Authentication code
 @app.post("/token")
 async def login_for_access_token(
@@ -67,12 +56,3 @@ async def login_for_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
-
-
-# example route that requires authentication and getting the current user
-@app.get("/users/me/")
-async def read_users_me(
-    current_user: Annotated[(schemas.Waymarker, Depends(get_current_active_user))],
-    db: Session = Depends(get_db),
-):
-    return current_user
