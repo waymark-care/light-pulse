@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload YAML File</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload YAML File</h1>
+        <form action="upload/" method="post" enctype="multipart/form-data">
+            <label for="file-upload" class="custom-file-upload">Choose File</label>
+            <input id="file-upload" name="file" type="file" accept=".yaml">
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+</body>
+</html>

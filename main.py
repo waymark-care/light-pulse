@@ -4,6 +4,7 @@ import logging
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 
@@ -16,14 +17,17 @@ from auth import (
     authenticate_user,
 )
 
-from api import patient
+from api import patient, waymarker
 
 logger = logging.getLogger(__name__)
 
 
 schemas.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(patient.router)
+app.include_router(waymarker.router)
 
 
 @app.get("/")
