@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, HTTPException
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -6,11 +8,12 @@ from database.db import get_db
 from services.auto_update_status.care_gaps import patient_care_gaps_update
 from services.auto_update_status.adt_events import adt_event_update
 from services.auto_update_status.eligibility import patient_eligibility_status
+from services.auto_update_status.risk_tier import patient_risk_tier_update
 
 from services import db_utils
 from dependencies import get_current_active_user
 
-from models.patient import EligibilityStatus
+from models.patient import EligibilityStatus, RiskTier
 
 router = APIRouter(
     prefix="/patients",
@@ -30,40 +33,30 @@ async def read_patient(patient_id: str, db: Session = Depends(get_db)):
     return db_patient
 
 
-class PatientCareGapRequestBody(BaseModel):
-    total_gaps: int
-
-
 @router.post("/{patient_id}/care-gaps")
 async def patient_care_gaps(
     patient_id: str,
-    care_gaps: PatientCareGapRequestBody,
+    total_gaps: Annotated[int, Body(embed=True)],
     db: Session = Depends(get_db),
 ):
     """Updates patient status from
     ASSIGNED to TARGETED if there is more than one open care gap"""
-    total_gaps = care_gaps.total_gaps
     result, error = await patient_care_gaps_update(db, patient_id, total_gaps)
     if error:
         raise HTTPException(status_code=400, detail=error)
     return result
 
 
-class PatientAdtEventRequestBody(BaseModel):
-    adtEventId: str
-
-
 @router.post("/{patient_id}/adt-event")
 async def patient_adt_event(
     patient_id: str,
-    adt_event: PatientAdtEventRequestBody,
+    adtEventId: Annotated[str, Body(embed=True)],
     db: Session = Depends(get_db),
 ):
     """Updates patient status from
     ASSIGNED to TARGETED with a relevant ADT event
     """
-    adt_event_id = adt_event.adtEventId
-    result, error = await adt_event_update(db, patient_id, adt_event_id)
+    result, error = await adt_event_update(db, patient_id, adtEventId)
 
     if error:
         raise HTTPException(status_code=400, detail=error)
@@ -91,6 +84,20 @@ async def update_patient_eligibility_status(
         db, patient_id, old_eligibility, new_eligibility
     )
 
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    return result
+
+
+@router.post("/{patient_id}/risk-tier")
+async def patient_risk_tier(
+    patient_id: str,
+    risk_tier: Annotated[RiskTier, Body(embed=True)],
+    db: Session = Depends(get_db),
+):
+    """Updates patient status from ASSIGNED to TARGETED
+    if the patient's risk tier is high"""
+    result, error = await patient_risk_tier_update(db, patient_id, risk_tier)
     if error:
         raise HTTPException(status_code=400, detail=error)
     return result

@@ -42,6 +42,12 @@ class PatientStatusTypes(str, Enum):
     ACTIVATED = "ACTIVATED"
 
 
+class RiskTier(int, Enum):
+    # expected values for patient.risk_tier
+    HIGH = 1
+    LOW = 2
+
+
 class Patient(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
