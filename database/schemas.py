@@ -18,6 +18,10 @@ class Waymarker(Base):
     __table__ = Table("Waymarker", lighthouse_metadata, autoload=engine)
 
 
+class TwilioNumber(Base):
+    __table__ = Table("TwilioNumber", lighthouse_metadata, autoload=engine)
+
+
 class AdmissionDischargeTransfer(Base):
     __table__ = Table(
         "AdmissionDischargeTransfer", lighthouse_metadata, autoload=engine
