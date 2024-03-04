@@ -85,8 +85,8 @@ async def create_waymarker_and_provision_number(db: Session,
                 waymarker.market, friendly_name
             )
         )
-        await add_twilio_phone_number(db, str(waymarker.id),
-                                      provisioned_phone_number)
+        add_twilio_phone_number(db, str(waymarker.id),
+                                provisioned_phone_number)
         logger.info(
             f"Provisioned phone number {provisioned_phone_number} \
                 for waymarker {waymarker.id}"
