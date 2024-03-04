@@ -1,4 +1,5 @@
 import os
+import logging
 from twilio.rest import Client
 from enum import Enum
 from dotenv import load_dotenv
@@ -18,6 +19,9 @@ main_client = Client(main_account_sid, main_auth_token)
 
 # other IDs
 TWILIO_BUSINESS_PROFILE_SID = os.environ["TWILIO_BUSINESS_PROFILE_SID"]
+
+
+logger = logging.getLogger(__name__)
 
 
 class WaymarkerAreaCodes(int, Enum):
@@ -63,13 +67,11 @@ def get_area_code(market: str) -> int:
     Returns:
         int: the area code for the market
     """
-    if market == "Seattle":
-        return WaymarkerAreaCodes.SEATTLE.value
-    if market == "Richmond":
-        return WaymarkerAreaCodes.RICHMOND.value
-    if market == "Hampton Roads":
-        return WaymarkerAreaCodes.HAMPTON_ROADS.value
-    raise ValueError(f"Market {market} not found")
+    try:
+        market_key = market.upper().replace(" ", "_")
+        return WaymarkerAreaCodes[market_key].value
+    except KeyError:
+        raise ValueError(f"Market {market} not found")
 
 
 def generate_new_twilio_number(area_code: str) -> str:
@@ -77,7 +79,9 @@ def generate_new_twilio_number(area_code: str) -> str:
     new_numbers = prod_client.available_phone_numbers("US").local.list(
         area_code=area_code, limit=1
     )
-
+    if len(new_numbers) == 0:
+        raise Exception(f"No numbers found for area code {area_code}")
+    logger.info(f"Found new number: {new_numbers[0].phone_number}")
     return new_numbers[0].phone_number
 
 
@@ -88,15 +92,12 @@ async def provision_new_twilio_number(phone_number: str, friendly_name: str):
         emergency_address_sid=os.environ["TWILIO_ADDRESS_SID"],
         voice_application_sid=os.environ["TWILIO_TWIML_SID"],
     )
-
     number_sid = incoming_phone_number.sid
-
     # Add the number to all the test products
     await _add_number_to_business_profile(number_sid=number_sid)
     await _add_number_to_shaken(number_sid=number_sid)
     await _add_number_to_cnam(number_sid=number_sid)
     await _add_number_to_voice_integrity(number_sid=number_sid)
-
     # Add the number to the messaging service
     await _add_number_to_messaging_service(number_sid=number_sid)
 
