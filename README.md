@@ -2,7 +2,7 @@
 
 ## Description
 
-A brief description of the project.
+Fiddling around and playing with Python APIs, a test project with the 10% time
 
 ## Table of Contents
 
@@ -15,11 +15,12 @@ A brief description of the project.
 
 ## Installation
 
-Based on the [FastAPI](https://fastapi.tiangolo.com/) documentation:
-- create a Python virtual environment, named `.venv`. Recommended instructions are on the Visual
-Studio code website, so that you setup the Python development environment correctly. 
-- Activate it with `source .venv/bin/activate`
-- Install all the requirements with `pip install -r requirements.txt`
+Based on the [FastAPI](https://fastapi.tiangolo.com/) documentation
+
+This project is using `pipenv` as a dependency manager.
+Install this package manager with `pip install --user pipenv`
+- Install project requirements with `pipenv install`
+- Activate an active terminal with `pipenv shell`
 
 ## Usage
 
