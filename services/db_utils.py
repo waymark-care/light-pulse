@@ -1,6 +1,12 @@
 from sqlalchemy.orm import Session
-from database.schemas import Patient, Waymarker, AdmissionDischargeTransfer
+from database.schemas import (
+    Patient,
+    Waymarker,
+    AdmissionDischargeTransfer,
+    TwilioNumber,
+)
 from models.waymarker import Waymarker as WaymarkerModel
+from cuid import cuid
 
 
 def get_patient(db: Session, patient_id: str):
@@ -28,15 +34,34 @@ def create_waymarker(
     db: Session,
     waymarker: WaymarkerModel,
 ):
-    waymarker = Waymarker(
-        id=waymarker.id,
-        firstName=waymarker.firstName,
-        lastName=waymarker.lastName,
-        market=waymarker.market,
-        email=waymarker.email,
-        title=waymarker.title,
-    )
-    db.add(waymarker)
-    db.commit()
+    try: 
+        waymarker = Waymarker(
+            id=waymarker.id,
+            firstName=waymarker.firstName,
+            lastName=waymarker.lastName,
+            market=waymarker.market,
+            email=waymarker.email,
+            title=waymarker.title,
+            phoneNumber=waymarker.phoneNumber,
+        )
+        db.add(waymarker)
+        db.commit()
+    except Exception as e: 
+        db.rollback()
+        raise Exception(f"Database error: {e}")
+    
     db.refresh(waymarker)
     return waymarker
+
+
+def add_twilio_phone_number(
+    db: Session,
+    waymarker_id: str,
+    twilio_number: str,
+):
+    phone_number_link = TwilioNumber(
+        id=cuid(), number=twilio_number, waymarkerId=waymarker_id
+    )
+    db.add(phone_number_link)
+    db.commit()
+    return phone_number_link

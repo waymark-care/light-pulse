@@ -35,8 +35,13 @@ async def upload_file(
         data = yaml.safe_load(contents)
         logger.info(f"Data from file: {data}")
         logger.info(f"keys: {data.keys()}")
-        await bulk_upload_waymarkers(db, data["waymarkers"])
+        errors, results = await bulk_upload_waymarkers(db, data["waymarkers"])
     except yaml.YAMLError as e:
         raise HTTPException(status_code=400, detail=f"Invalid YAML: {str(e)}")
-
-    return {"filename": file.filename, "data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+    return templates.TemplateResponse("bulk_upload_results.html", 
+                                      {"request": request,
+                                       "errors": errors, 
+                                       "results": results})

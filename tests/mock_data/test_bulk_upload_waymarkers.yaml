@@ -6,11 +6,13 @@ waymarkers:
   first_name: Dan
   last_name: Wanek
   title: HEAD_OF_CARE_OPS
-  market: Richmond
+  market: Seattle
+
 
 - email: katie.li+v2@waymarkcare.com
   first_name: Katie
   last_name: Li
   title: CHW
-  market: Seattle
+  market: Richmond
+  phone_number: "+17209519724"
 

@@ -35,7 +35,7 @@ class Waymarker(BaseModel):
     email: Union[str, None] = None
     title: Union[str, None] = None
     market: Union[Market, None] = None
-    phone_number: Union[str, None] = None
+    phoneNumber: Union[str, None] = None
 
     # used for authentication purposes
     active: Union[bool, None] = None
